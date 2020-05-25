@@ -1,13 +1,14 @@
 import copy
 import time
 # données des noeuds
-F, G, H, JEU, PAPA = 0, 1, 2, 3, 4
+F, G, H, P, JEU, PAPA = 0, 1, 2, 3, 4, 5
 # La liste des noeuds développés
 # F cout tottale
 # G cout de déplacement
 # H Evaluation de l'heuristique
 # Jeu l'état du noeud
-# Noeud Pere
+# Noeud Pere PAPA
+# deplacement P
 
 
 class Solveur:
@@ -22,9 +23,13 @@ class Solveur:
         self.taquinInitial = taquin
         self.numeroCaseVide = taquin.numeroCaseVide
         self.taille = len(taquin.jeu)
+        # Heuristique initiale
+
         # on met l'etat initial
+
         # openList comporte la liste des noeuds developpés
-        self.openList.append([0, 0, 0, taquin.jeu, None])
+
+        self.openList.append([0, 0, 0, '', taquin.jeu, None])
 
     def dep_gauche(self, taquin, noeudCourant, colonne, ligne):
 
@@ -34,44 +39,51 @@ class Solveur:
                                           1] = tq[ligne][colonne-1], tq[ligne][colonne]
             g = noeudCourant[G] + 1
             h = self.heuristique(tq)
+            dep = "gauche de ({},{}) vers ({},{})".format(
+                ligne, colonne, ligne, colonne-1)
             if not tq in self.closedList:
                 i = self.indiceDansListeOuverte(tq)
                 if i == -1:
                     self.openList.append(
-                        [g + h, g, h, tq, noeudCourant])
+                        [g + h, g, h, dep, tq, noeudCourant])
 
                 elif g + h < self.openList[0][F]:
                     self.openList[i] = [
-                        g + h, g, h, tq, noeudCourant]
+                        g + h, g, h, dep, tq, noeudCourant]
 
     def dep_droite(self, taquin, noeudCourant, colonne, ligne):
         if colonne < self.taille - 1 and taquin[ligne][colonne + 1] == self.numeroCaseVide:
 
             tq = copy.deepcopy(taquin)
             tq[ligne][colonne], tq[ligne][colonne +
-                                          1] = tq[ligne][colonne+1], tq[ligne][colonne]
+                                          1] = tq[ligne][colonne + 1], tq[ligne][colonne]
+            dep = "\n droite de ({},{}) vers ({},{}) \n".format(
+                ligne, colonne, ligne, colonne+1)
             g = noeudCourant[G]+1
             h = self.heuristique(tq)
             if not tq in self.closedList:
                 i = self.indiceDansListeOuverte(tq)
                 if i == -1:
-                    self.openList.append([g+h, g, h, tq, noeudCourant])
+                    self.openList.append([g+h, g, h, dep, tq, noeudCourant])
                 elif g+h < self.openList[i][F]:
-                    self.openList[i] = [g + h, g, h, tq, noeudCourant]
+                    self.openList[i] = [g + h, g, h, dep, tq, noeudCourant]
 
     def dep_haut(self, taquin, noeudCourant, colonne, ligne):
         if ligne > 0 and taquin[ligne-1][colonne] == self.numeroCaseVide:
             tq = copy.deepcopy(taquin)
             tq[ligne][colonne], tq[ligne-1][colonne] = tq[ligne -
                                                           1][colonne], tq[ligne][colonne]
+            dep = "haut de ({},{}) vers ({},{})".format(
+                ligne, colonne, ligne-1, colonne)
+
             g = noeudCourant[G]+1
             h = self.heuristique(tq)
             if not tq in self.closedList:
                 i = self.indiceDansListeOuverte(tq)
                 if i == -1:
-                    self.openList.append([g+h, g, h, tq, noeudCourant])
+                    self.openList.append([g+h, g, h, dep, tq, noeudCourant])
                 elif g+h < self.openList[i][F]:
-                    self.openList[i] = [g + h, g, h, tq, noeudCourant]
+                    self.openList[i] = [g + h, g, h, dep, tq, noeudCourant]
 
     def dep_bas(self, taquin, noeudCourant, colonne, ligne):
         if ligne < self.taille - 1 and taquin[ligne+1][colonne] == self.numeroCaseVide:
@@ -80,12 +92,14 @@ class Solveur:
                                                           1][colonne], tq[ligne][colonne]
             g = noeudCourant[G]+1
             h = self.heuristique(tq)
+            dep = "bas de ({},{}) vers ({},{})".format(
+                ligne, colonne, ligne+1, colonne)
             if not tq in self.closedList:
                 i = self.indiceDansListeOuverte(tq)
                 if i == -1:
-                    self.openList.append([g+h, g, h, tq, noeudCourant])
+                    self.openList.append([g+h, g, h, dep, tq, noeudCourant])
                 elif g+h < self.openList[i][F]:
-                    self.openList[i] = [g + h, g, h, tq, noeudCourant]
+                    self.openList[i] = [g + h, g, h, dep, tq, noeudCourant]
 
     def resoudre(self):
         print("Recherche de la solution...")
@@ -170,15 +184,20 @@ class Taquin:
             res = res[PAPA]
         L.reverse()
         i = 0
+        h_init = (solveur.heuristique(self.jeu))
         for elem in L:
-
+            if (i == 0):
+                elem[H] = h_init
+                elem[F] = elem[H]
+            print(elem[P])
             print("\n \n E", i)
-            print("Coût totale F : {} \t Coût du déplacement : {}  \t Coût heuristique : {}".format(
+
+            print("Coût totale F : {} \t Coût du déplacement G: {}  \t Coût heuristique H: {}".format(
                 elem[F], elem[G], elem[H]))
 
             print('\n' + '\n'.join(''.join(str(i)) for i in elem[JEU]))
             i += 1
-        print("\n \n EF")
+        print("\n \n EF : Coût totale F : ", i)
 
         self.printEtatFini()
 
