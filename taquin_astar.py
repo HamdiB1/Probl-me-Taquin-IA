@@ -169,13 +169,17 @@ class Taquin:
             L.append(res[PAPA])
             res = res[PAPA]
         L.reverse()
-
+        i = 0
         for elem in L:
-            print("\n \n E", elem[G])
+
+            print("\n \n E", i)
             print("Coût totale F : {} \t Coût du déplacement : {}  \t Coût heuristique : {}".format(
                 elem[F], elem[G], elem[H]))
 
             print('\n' + '\n'.join(''.join(str(i)) for i in elem[JEU]))
+            i += 1
+        print("\n \n EF")
+
         self.printEtatFini()
 
 
